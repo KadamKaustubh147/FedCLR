@@ -1,0 +1,12 @@
+*.npy
+
+*.txt
+
+.venv/
+
+douban_dataset/
+
+datasets/
+
+
+__pycache__/
