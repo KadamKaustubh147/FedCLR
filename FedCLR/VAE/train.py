@@ -52,7 +52,6 @@ def train(model, dataloader, optimizer, device):
     model.train()
     total_loss = 0
 
-    # batch wise training
     for x_s, x_t in dataloader:
         x_s = x_s.to(device)
         x_t = x_t.to(device)
@@ -76,6 +75,7 @@ def train(model, dataloader, optimizer, device):
 def main():
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
+    # Load dataset
     dataset = CrossDomainDataset("X_source.npy", "X_target.npy")
 
     dataloader = DataLoader(
@@ -87,14 +87,38 @@ def main():
     input_dim_source = dataset.Xs.shape[1]
     input_dim_target = dataset.Xt.shape[1]
 
+    # Model + optimizer
     model = VAE(input_dim_source, input_dim_target).to(device)
     optimizer = torch.optim.Adam(model.parameters(), lr=1e-3)
 
     epochs = 200
+    best_loss = float("inf")
+
+    print("🚀 Starting training...\n")
 
     for epoch in range(epochs):
         loss = train(model, dataloader, optimizer, device)
+
         print(f"Epoch {epoch+1}/{epochs}, Loss: {loss:.4f}")
+
+        # ✅ Save best model
+        if loss < best_loss:
+            best_loss = loss
+            torch.save(model.state_dict(), "vae_best.pth")
+            print("✅ Saved BEST model")
+
+        # (optional) checkpoint every 20 epochs
+        if (epoch + 1) % 20 == 0:
+            torch.save({
+                "epoch": epoch + 1,
+                "model_state_dict": model.state_dict(),
+                "optimizer_state_dict": optimizer.state_dict(),
+                "loss": loss
+            }, f"checkpoint_epoch_{epoch+1}.pth")
+            print(f"📦 Saved checkpoint at epoch {epoch+1}")
+
+    print("\n🎯 Training complete")
+    print(f"Best Loss: {best_loss:.4f}")
 
 
 if __name__ == "__main__":
