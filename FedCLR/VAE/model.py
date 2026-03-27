@@ -49,4 +49,5 @@ class VAE(nn.Module):
         z = self.reparameterize(mu, logvar)
         logits = self.decode(z)
 
+        # TODO: understanding what this logits is
         return logits, mu, logvar, z

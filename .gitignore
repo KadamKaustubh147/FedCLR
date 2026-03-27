@@ -1,12 +1,14 @@
 *.npy
 
 *.txt
+*.pth
 
 .venv/
 
 douban_dataset/
 
 datasets/
+
 
 
 __pycache__/

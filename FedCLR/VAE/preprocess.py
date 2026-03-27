@@ -45,6 +45,7 @@ def preprocess():
     
     # user_id: 843, 12903, 999999
     # movie_id: 21292, 34584
+    # change to simple numbers starting from 0
     
     movie_map = {m: i for i, m in enumerate(movies["movie_id"].unique())}
     music_map = {m: i for i, m in enumerate(music["music_id"].unique())}
@@ -69,8 +70,19 @@ def preprocess():
         X_target[row["user_id"], row["music_id"]] = row["rating"]
 
     # Save
-    np.save("X_source.npy", X_source)
-    np.save("X_target.npy", X_target)
+    # np.save("X_source.npy", X_source)
+    # np.save("X_target.npy", X_target)
+
+        # Save matrices
+    # np.save("X_source.npy", X_source)
+    # np.save("X_target.npy", X_target)
+
+    # Save mappings (CRUCIAL)
+    np.save("user_map.npy", user_map, allow_pickle=True)
+    np.save("movie_map.npy", movie_map, allow_pickle=True)
+    np.save("music_map.npy", music_map, allow_pickle=True)
+
+    print("Saved X_source.npy, X_target.npy, and mappings")
 
     print("Saved X_source.npy and X_target.npy")
 

@@ -27,6 +27,7 @@ class CrossDomainDataset(Dataset):
 # =========================
 # LOSS FUNCTIONS
 # =========================
+# TODO: understanding this loss and comparing with as mentioned in paper
 def reconstruction_loss(logits, x_t):
     log_softmax = F.log_softmax(logits, dim=1)
     loss = -torch.sum(x_t * log_softmax, dim=1)
@@ -52,6 +53,7 @@ def train(model, dataloader, optimizer, device):
     model.train()
     total_loss = 0
 
+    # this is batch wise, train function is called for each epoch, and dataloader gives batches of data
     for x_s, x_t in dataloader:
         x_s = x_s.to(device)
         x_t = x_t.to(device)
