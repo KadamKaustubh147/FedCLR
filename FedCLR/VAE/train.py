@@ -20,6 +20,8 @@ class CrossDomainDataset(Dataset):
 
     def __getitem__(self, idx):
         x_s = torch.tensor(self.Xs[idx], dtype=torch.float32)
+        # TODO run this print statement
+        # print(x_s)
         x_t = torch.tensor(self.Xt[idx], dtype=torch.float32)
         return x_s, x_t, idx   # ✅ return idx
 
