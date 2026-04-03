@@ -3,6 +3,17 @@ import torch
 import torch.nn.functional as F
 from torch.utils.data import Dataset, DataLoader
 from model import VAE
+import torch.nn as nn   # ✅ added
+
+
+# =========================
+# XAVIER INITIALIZATION
+# =========================
+def init_weights(m):   # ✅ added
+    if isinstance(m, nn.Linear):
+        nn.init.xavier_uniform_(m.weight)
+        if m.bias is not None:
+            nn.init.zeros_(m.bias)
 
 
 # =========================
@@ -18,18 +29,16 @@ class CrossDomainDataset(Dataset):
     def __len__(self):
         return self.Xs.shape[0]
 
-    def __getitem__(self, idx):
-        x_s = torch.tensor(self.Xs[idx], dtype=torch.float32)
-        # TODO run this print statement
-        # print(x_s)
-        x_t = torch.tensor(self.Xt[idx], dtype=torch.float32)
-        return x_s, x_t, idx   # ✅ return idx
+    def __getitem__(self, user_id):
+        x_s = torch.tensor(self.Xs[user_id], dtype=torch.float32)
+        x_t = torch.tensor(self.Xt[user_id], dtype=torch.float32)
+        # user_id is the index -->
+        return x_s, x_t, user_id   # ✅ return user_id
 
 
 # =========================
 # LOSS FUNCTIONS
 # =========================
-# TODO: understanding this loss and comparing with as mentioned in paper
 def reconstruction_loss(logits, x_t):
     log_softmax = F.log_softmax(logits, dim=1)
     loss = -torch.sum(x_t * log_softmax, dim=1)
@@ -69,8 +78,7 @@ def train(model, dataloader, optimizer, device, prev_z_memory, epoch):
     model.train()
     total_loss = 0
 
-    # this is batch wise, train function is called for each epoch, and dataloader gives batches of data
-    for x_s, x_t, idx in dataloader:
+    for x_s, x_t, user_id in dataloader:
         x_s = x_s.to(device)
         x_t = x_t.to(device)
 
@@ -83,11 +91,10 @@ def train(model, dataloader, optimizer, device, prev_z_memory, epoch):
         # =========================
         # Contrastive part
         # =========================
-        if epoch > 0:
+        if epoch > 0 and all(prev_z_memory[i.item()] is not None for i in user_id):
             z = F.normalize(z, dim=1)
 
-            # fetch previous z correctly per user
-            prev_z = torch.stack([prev_z_memory[i.item()] for i in idx]).to(device)
+            prev_z = torch.stack([prev_z_memory[i.item()] for i in user_id]).to(device)
             prev_z = F.normalize(prev_z, dim=1)
 
             # Inner model similarity
@@ -109,67 +116,43 @@ def train(model, dataloader, optimizer, device, prev_z_memory, epoch):
         total_loss += loss.item()
 
         # update memory correctly (per user)
-        for i, user_idx in enumerate(idx):
+        for i, user_idx in enumerate(user_id):
             prev_z_memory[user_idx.item()] = z[i].detach().cpu()
 
     return total_loss / len(dataloader)
 
 
 # =========================
-# MAIN
+# MAIN (OPTIONAL - CENTRALIZED)
 # =========================
 def main():
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    # Load dataset
     dataset = CrossDomainDataset("X_source.npy", "X_target.npy")
 
     dataloader = DataLoader(
         dataset,
         batch_size=128,
-        # TODO find out whether this is needed or not
-        shuffle=False   # ⚠️ required for consistency
+        shuffle=False
     )
 
     input_dim_source = dataset.Xs.shape[1]
     input_dim_target = dataset.Xt.shape[1]
 
-    # Model + optimizer
     model = VAE(input_dim_source, input_dim_target).to(device)
+
+    model.apply(init_weights)   # ✅ APPLY XAVIER HERE
+
     optimizer = torch.optim.Adam(model.parameters(), lr=1e-3)
 
-    # memory for previous latent vectors (per user)
     num_users = len(dataset)
     prev_z_memory = [None] * num_users
 
     epochs = 200
-    best_loss = float("inf")
-
-    print("🚀 Starting training...\n")
 
     for epoch in range(epochs):
         loss = train(model, dataloader, optimizer, device, prev_z_memory, epoch)
-
         print(f"Epoch {epoch+1}/{epochs}, Loss: {loss:.4f}")
-
-        # ✅ Save best model
-        if loss < best_loss:
-            best_loss = loss
-            torch.save(model.state_dict(), "vae_best.pth")
-            print("✅ Saved BEST model")
-
-        # (optional) checkpoint every 20 epochs
-        if (epoch + 1) % 20 == 0:
-            torch.save({
-                "epoch": epoch + 1,
-                "model_state_dict": model.state_dict(),
-                "optimizer_state_dict": optimizer.state_dict(),
-                "loss": loss
-            }, f"checkpoint_epoch_{epoch+1}.pth")
-            print(f"📦 Saved checkpoint at epoch {epoch+1}")
-
-    print("\n🎯 Training complete")
-    print(f"Best Loss: {best_loss:.4f}")
 
 
 if __name__ == "__main__":

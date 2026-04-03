@@ -60,6 +60,7 @@ def preprocess():
     print(f"Users: {num_users}, Movies: {num_movies}, Music: {num_music}")
 
     # Build matrices
+    # multi hot encoding of user-item interactions
     X_source = np.zeros((num_users, num_movies), dtype=np.float32)
     X_target = np.zeros((num_users, num_music), dtype=np.float32)
 
@@ -78,9 +79,9 @@ def preprocess():
     # np.save("X_target.npy", X_target)
 
     # Save mappings (CRUCIAL)
-    np.save("user_map.npy", user_map, allow_pickle=True)
-    np.save("movie_map.npy", movie_map, allow_pickle=True)
-    np.save("music_map.npy", music_map, allow_pickle=True)
+    # np.save("user_map.npy", user_map, allow_pickle=True)
+    # np.save("movie_map.npy", movie_map, allow_pickle=True)
+    # np.save("music_map.npy", music_map, allow_pickle=True)
 
     print("Saved X_source.npy, X_target.npy, and mappings")
 
