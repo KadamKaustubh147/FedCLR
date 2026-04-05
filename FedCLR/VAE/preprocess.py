@@ -6,7 +6,7 @@ def preprocess():
     print("Loading raw data...")
 
     movies = pd.read_csv("../douban_dataset/moviereviews_cleaned.txt", sep="\t")
-    music = pd.read_csv("../douban_dataset/musicreviews_cleaned.txt", sep="\t")
+    music = pd.read_csv("../douban_dataset/bookreviews_cleaned.txt", sep="\t")
 
     # removing quotes from column names
     movies.columns = [c.strip('"') for c in movies.columns]
@@ -14,7 +14,7 @@ def preprocess():
 
     # removing everything else and keeping three important columns
     movies = movies[["user_id", "movie_id", "rating"]]
-    music = music[["user_id", "music_id", "rating"]]
+    music = music[["user_id", "book_id", "rating"]]
 
     # Convert types
     movies["user_id"] = movies["user_id"].astype(int)
@@ -22,7 +22,7 @@ def preprocess():
     movies["rating"] = movies["rating"].astype(float)
 
     music["user_id"] = music["user_id"].astype(int)
-    music["music_id"] = music["music_id"].astype(int)
+    music["book_id"] = music["book_id"].astype(int)
     music["rating"] = music["rating"].astype(float)
 
     # Binarize
@@ -48,10 +48,10 @@ def preprocess():
     # change to simple numbers starting from 0
     
     movie_map = {m: i for i, m in enumerate(movies["movie_id"].unique())}
-    music_map = {m: i for i, m in enumerate(music["music_id"].unique())}
+    music_map = {m: i for i, m in enumerate(music["book_id"].unique())}
 
     movies["movie_id"] = movies["movie_id"].map(movie_map)
-    music["music_id"] = music["music_id"].map(music_map)
+    music["book_id"] = music["book_id"].map(music_map)
 
     num_users = len(user_map)
     num_movies = len(movie_map)
@@ -68,20 +68,20 @@ def preprocess():
         X_source[row["user_id"], row["movie_id"]] = row["rating"]
 
     for _, row in music.iterrows():
-        X_target[row["user_id"], row["music_id"]] = row["rating"]
+        X_target[row["user_id"], row["book_id"]] = row["rating"]
 
     # Save
-    # np.save("X_source.npy", X_source)
-    # np.save("X_target.npy", X_target)
+    np.save("X_source.npy", X_source)
+    np.save("X_target.npy", X_target)
 
-        # Save matrices
-    # np.save("X_source.npy", X_source)
-    # np.save("X_target.npy", X_target)
+    # Save matrices
+    np.save("X_source.npy", X_source)
+    np.save("X_target.npy", X_target)
 
     # Save mappings (CRUCIAL)
-    # np.save("user_map.npy", user_map, allow_pickle=True)
-    # np.save("movie_map.npy", movie_map, allow_pickle=True)
-    # np.save("music_map.npy", music_map, allow_pickle=True)
+    np.save("user_map.npy", user_map, allow_pickle=True)
+    np.save("movie_map.npy", movie_map, allow_pickle=True)
+    np.save("music_map.npy", music_map, allow_pickle=True)
 
     print("Saved X_source.npy, X_target.npy, and mappings")
 

@@ -12,10 +12,9 @@ class VAE(nn.Module):
         self.encoder = nn.Sequential(
             nn.Linear(input_dim_source, hidden_dim),
             nn.Tanh(),
-            nn.Dropout(0.3),
+            # nn.Dropout(0.3),
             nn.Linear(hidden_dim, latent_dim),
             nn.Tanh(),
-            nn.Dropout(0.3)
         )
 
         # why not hidden to latent
@@ -26,7 +25,7 @@ class VAE(nn.Module):
         self.decoder = nn.Sequential(
             nn.Linear(latent_dim, hidden_dim),
             nn.Tanh(),
-            nn.Dropout(0.3),
+            # nn.Dropout(0.3),
             nn.Linear(hidden_dim, input_dim_target)
         )
 
@@ -39,9 +38,9 @@ class VAE(nn.Module):
     def reparameterize(self, mu, logvar):
         # Because predicting log variance is numerically stable and unconstrained.
         # σ=e^(0.5 * logvar) beacuse we need log of standard deviation, not variance, and logvar is log(σ^2) = 2*log(σ)
-        log_std = torch.exp(0.5 * logvar)
-        eps = torch.randn_like(log_std)
-        return mu + eps * log_std
+        std = torch.exp(0.5 * logvar)
+        eps = torch.randn_like(std)
+        return mu + eps * std
 
     def decode(self, z):
         logits = self.decoder(z)

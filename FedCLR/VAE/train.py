@@ -74,7 +74,7 @@ def fedclr_contrastive_loss(sim_inn, sim_int, temperature=0.3):
 # =========================
 # TRAINING
 # =========================
-def train(model, dataloader, optimizer, device, prev_z_memory, epoch):
+def train(model, dataloader, optimizer, device, prev_z_memory, z_glob_memory, epoch):
     model.train()
     total_loss = 0
 
@@ -100,24 +100,24 @@ def train(model, dataloader, optimizer, device, prev_z_memory, epoch):
             # Inner model similarity
             sim_inn = similarity(z, prev_z)
 
-            # Inter model (proxy global = batch mean)
-            z_global = torch.mean(z, dim=0, keepdim=True)
-            z_global = z_global.expand_as(z)
+            z_global = torch.stack([z_glob_memory[i.item()] for i in user_id]).to(device)
+
 
             sim_int = similarity(z, z_global)
 
             con_loss = fedclr_contrastive_loss(sim_inn, sim_int)
 
-            loss = loss + 0.4 * con_loss
+            loss = loss + 40 * con_loss
 
         loss.backward()
         optimizer.step()
 
         total_loss += loss.item()
+        
 
         # update memory correctly (per user)
         for i, user_idx in enumerate(user_id):
-            prev_z_memory[user_idx.item()] = z[i].detach().cpu()
+            prev_z_memory[user_idx.item()] = F.normalize(z, dim=1)[i].detach().cpu()
 
     return total_loss / len(dataloader)
 
@@ -151,7 +151,7 @@ def main():
     epochs = 200
 
     for epoch in range(epochs):
-        loss = train(model, dataloader, optimizer, device, prev_z_memory, epoch)
+        loss = train(model, dataloader, optimizer, device, prev_z_memory, {}, epoch)
         print(f"Epoch {epoch+1}/{epochs}, Loss: {loss:.4f}")
 
 
