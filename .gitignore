@@ -9,6 +9,7 @@ douban_dataset/
 
 datasets/
 
-
+*.npz
+*.dat
 
 __pycache__/

@@ -1,9 +1,12 @@
+import matplotlib.pyplot as plt
 import numpy as np
 import torch
 import random
 import copy
 from torch.utils.data import DataLoader, Subset
 import torch.nn.functional as F
+from test1 import evaluate
+
 
 from model import VAE
 # imports dataset and train function --> local training function
@@ -98,7 +101,7 @@ def local_training(global_model, dataset, indices, device, local_epochs, prev_z_
         print(f"    📉 Local Epoch {epoch+1}/{local_epochs} | Loss: {loss:.4f}")
 
 
-    return local_model.state_dict(), len(indices)
+    return local_model.state_dict(), len(indices), loss
 
 
 # =========================
@@ -153,9 +156,8 @@ def aggregate(global_model, client_states, client_sizes):
     global_model.load_state_dict(new_state)
 
 
-# =========================
-# FEDERATED TRAINING
-# =========================
+
+
 def federated_training():
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -166,82 +168,251 @@ def federated_training():
     input_dim_source = dataset.Xs.shape[1]
     input_dim_target = dataset.Xt.shape[1]
 
-    # This code creates a brand new untrained model --> weights are random 
     global_model = VAE(input_dim_source, input_dim_target).to(device)
-    # xavier intialisation
-    global_model.apply(init_weights)   
+    global_model.apply(init_weights)
 
-    # 🔥 user-based clients
     client_splits = split_by_user(dataset)
-    all_users = list(client_splits.keys())
 
     # =========================
-    # APPLY TRAIN TEST SPLIT
+    # LOAD SPLIT FROM PREPROCESSING
+    # don't re-split here — use the same split as preprocessing
     # =========================
-    train_users, test_users = train_test_split_users(client_splits, test_ratio=0.2)
+    train_users = np.load("train_users.npy").tolist()
+    cold_start_users = np.load("cold_start_users.npy").tolist()
 
-    print(f"Train users: {len(train_users)}, Test users: {len(test_users)}")
+    print(f"Train users: {len(train_users)}, Cold-start users: {len(cold_start_users)}")
 
-    # =========================
-    # SAVE SPLIT (IMPORTANT)
-    # =========================
-    np.save("train_users.npy", np.array(train_users))
-    np.save("test_users.npy", np.array(test_users))
-
-    print("💾 Saved train/test split")
-
-    # 🔥 global memory
-    # because the dataset is user item one hot encoding, the user_id is the index of the dataset
     num_users = len(dataset)
     prev_z_memory = [None] * num_users
 
-    # these factors below aren't specified -
-    global_rounds = 50
-    local_epochs = 3
-    C = 0.05  # fraction of clients
+    global_rounds = 25
+    local_epochs = 50
+    C = 0.05
 
     print("🚀 Starting Federated Training...\n")
+    
+    # for plotting purposes
+    global_losses = []
+    precision_50_history = []
+    precision_100_history = []
+
+    recall_50_history = []
+    recall_100_history = []
+
+    ndcg_50_history = []
+    ndcg_100_history = []
 
     for round_idx in range(global_rounds):
-
         print(f"\n🌍 Global Round {round_idx+1}")
 
-        # =========================
-        # SAMPLE ONLY FROM TRAIN USERS
-        # =========================
+        # sample ONLY from train users
         num_selected = max(1, int(C * len(train_users)))
         selected_users = random.sample(train_users, num_selected)
 
         client_states = []
         client_sizes = []
 
+        round_loss = 0
+        
         for user_id in selected_users:
-
             print(f"Client (User) {user_id} training...")
-
             indices = client_splits[user_id]
-
-            state_dict, size = local_training(
-                global_model,
-                dataset,
-                indices,
-                device,
-                local_epochs,
-                prev_z_memory
+            state_dict, size, loss = local_training(
+                global_model, dataset, indices,
+                device, local_epochs, prev_z_memory
             )
-
             client_states.append(state_dict)
             client_sizes.append(size)
-
-        # aggregate
+            round_loss += loss
+        
+        
+        # Evaluation
+        avg_round_loss = round_loss / len(selected_users)
+        
+        global_losses.append(avg_round_loss)
+        print(f"📊 Global Round Loss {round_idx+1}: {avg_round_loss:.4f}")
         aggregate(global_model, client_states, client_sizes)
-
         print("✅ Aggregation done")
+        
+        X_source = np.load("X_source.npy")
+        X_target_test = np.load("X_target_test.npy")
+        
+        results = evaluate(
+            global_model,
+            X_source,
+            X_target_test,
+            cold_start_users,
+            device,
+            k_list=[50, 100]
+        )
+
+        # =========================
+        # STORE METRICS
+        # =========================
+        precision_50_history.append(
+            results[50]["precision"]
+        )
+
+        precision_100_history.append(
+            results[100]["precision"]
+        )
+
+        recall_50_history.append(
+            results[50]["recall"]
+        )
+
+        recall_100_history.append(
+            results[100]["recall"]
+        )
+
+        ndcg_50_history.append(
+            results[50]["ndcg"]
+        )
+
+        ndcg_100_history.append(
+            results[100]["ndcg"]
+        )
+
+        # =========================
+        # PRINT METRICS
+        # =========================
+        print(
+            f"📈 @50 | "
+            f"P: {results[50]['precision']:.4f} "
+            f"R: {results[50]['recall']:.4f} "
+            f"NDCG: {results[50]['ndcg']:.4f}"
+        )
+
+        print(
+            f"📈 @100 | "
+            f"P: {results[100]['precision']:.4f} "
+            f"R: {results[100]['recall']:.4f} "
+            f"NDCG: {results[100]['ndcg']:.4f}"
+        )
 
     torch.save(global_model.state_dict(), "fedclr_model.pth")
-
     print("\n🎯 Federated Training Complete")
+    
 
+    rounds = range(1, global_rounds + 1)
+
+    # -------------------------
+    # LOSS
+    # -------------------------
+    plt.figure(figsize=(8, 5))
+
+    plt.plot(
+        rounds,
+        global_losses,
+        marker='o'
+    )
+
+    plt.xlabel("Global Rounds")
+    plt.ylabel("Loss")
+
+    plt.title(
+        "Federated Training Loss"
+    )
+
+    plt.grid(True)
+
+    plt.show()
+
+    # -------------------------
+    # PRECISION
+    # -------------------------
+    plt.figure(figsize=(8, 5))
+
+    plt.plot(
+        rounds,
+        precision_50_history,
+        marker='o',
+        label='Precision@50'
+    )
+
+    plt.plot(
+        rounds,
+        precision_100_history,
+        marker='o',
+        label='Precision@100'
+    )
+
+    plt.xlabel("Global Rounds")
+    plt.ylabel("Precision")
+
+    plt.title(
+        "Precision Convergence"
+    )
+
+    plt.legend()
+
+    plt.grid(True)
+
+    plt.show()
+
+    # -------------------------
+    # RECALL
+    # -------------------------
+    plt.figure(figsize=(8, 5))
+
+    plt.plot(
+        rounds,
+        recall_50_history,
+        marker='o',
+        label='Recall@50'
+    )
+
+    plt.plot(
+        rounds,
+        recall_100_history,
+        marker='o',
+        label='Recall@100'
+    )
+
+    plt.xlabel("Global Rounds")
+    plt.ylabel("Recall")
+
+    plt.title(
+        "Recall Convergence"
+    )
+
+    plt.legend()
+
+    plt.grid(True)
+
+    plt.show()
+
+    # -------------------------
+    # NDCG
+    # -------------------------
+    plt.figure(figsize=(8, 5))
+
+    plt.plot(
+        rounds,
+        ndcg_50_history,
+        marker='o',
+        label='NDCG@50'
+    )
+
+    plt.plot(
+        rounds,
+        ndcg_100_history,
+        marker='o',
+        label='NDCG@100'
+    )
+
+    plt.xlabel("Global Rounds")
+    plt.ylabel("NDCG")
+
+    plt.title(
+        "NDCG Convergence"
+    )
+
+    plt.legend()
+
+    plt.grid(True)
+
+    plt.show()
 
 if __name__ == "__main__":
     federated_training()

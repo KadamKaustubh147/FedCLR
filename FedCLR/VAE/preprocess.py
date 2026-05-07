@@ -5,7 +5,7 @@ import numpy as np
 def preprocess():
     print("Loading raw data...")
 
-    movies = pd.read_csv("../douban_dataset/moviereviews_cleaned.txt", sep="\t")
+    movies = pd.read_csv("../douban_dataset/musicreviews_cleaned.txt", sep="\t")
     music = pd.read_csv("../douban_dataset/bookreviews_cleaned.txt", sep="\t")
 
     # removing quotes from column names

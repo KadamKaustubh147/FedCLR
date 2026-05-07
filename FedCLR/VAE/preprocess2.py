@@ -136,20 +136,20 @@ def preprocess():
     # # STEP 4.5 — COLD-START SPLIT
     # # 20% of users = cold-start (test), 80% = train
     # # =========================
-    # all_user_ids = list(range(num_users))
-    # random.seed(42)
-    # random.shuffle(all_user_ids)
+    all_user_ids = list(range(num_users))
+    random.seed(42)
+    random.shuffle(all_user_ids)
 
-    # split = int(num_users * 0.8)
-    # train_users = set(all_user_ids[:split])
-    # cold_start_users = set(all_user_ids[split:])
+    split = int(num_users * 0.8)
+    train_users = set(all_user_ids[:split])
+    cold_start_users = set(all_user_ids[split:])
 
-    # print(f"\nCold-start split:")
-    # print(f"  Train users: {len(train_users)}")
-    # print(f"  Cold-start (test) users: {len(cold_start_users)}")
+    print(f"\nCold-start split:")
+    print(f"  Train users: {len(train_users)}")
+    print(f"  Cold-start (test) users: {len(cold_start_users)}")
 
-    # np.save("train_users.npy", np.array(list(train_users)))
-    # np.save("cold_start_users.npy", np.array(list(cold_start_users)))
+    np.save("train_users.npy", np.array(list(train_users)))
+    np.save("cold_start_users.npy", np.array(list(cold_start_users)))
 
     # =========================
     # STEP 5 — BINARIZE RATINGS
@@ -161,33 +161,35 @@ def preprocess():
     # STEP 6 — BUILD MATRICES
     # Movie = Source domain (rich data)
     # Music = Target domain (sparse data)
-    # =========================
     X_source = np.zeros((num_users, num_movies), dtype=np.float32)
     X_target = np.zeros((num_users, num_music),  dtype=np.float32)
+    X_target_test = np.zeros((num_users, num_music), dtype=np.float32)  # ground truth
 
     for _, row in movies.iterrows():
         X_source[int(row["user_id"]), int(row["item_id"])] = row["rating"]
 
     for _, row in music.iterrows():
-        X_target[int(row["user_id"]), int(row["item_id"])] = row["rating"]
-
-    print(f"\nMatrix shapes:")
-    print(f"  X_source: {X_source.shape}")
-    print(f"  X_target: {X_target.shape}")
-    print(f"  X_source sparsity: {(X_source == 0).mean():.4f} (target: ~0.9564)")
-    print(f"  X_target sparsity: {(X_target == 0).mean():.4f} (target: ~0.9954)")
-
+        uid = int(row["user_id"])
+        if uid in train_users:
+            # train users' target interactions visible during training
+            X_target[uid, int(row["item_id"])] = row["rating"]
+        else:
+            # cold-start users' target interactions hidden during training
+            X_target_test[uid, int(row["item_id"])] = row["rating"]
     # =========================
     # STEP 7 — SAVE
     # =========================
+# =========================
+    # STEP 7 — SAVE
+    # =========================
     np.save("X_source.npy", X_source)
-    np.save("X_target.npy", X_target)
+    np.save("X_target.npy", X_target)           # cold-start rows are all zeros
+    np.save("X_target_test.npy", X_target_test) # cold-start ground truth
     np.save("user_map.npy",
             np.array(list(user_map.items()), dtype=object),
             allow_pickle=True)
 
-    print("\nSaved X_source.npy, X_target.npy, user_map.npy")
-    print("\nDone!")
+    print(f"\nCold-start users have {X_target_test[list(cold_start_users)].sum()} total interactions in test set")
 
 
 if __name__ == "__main__":

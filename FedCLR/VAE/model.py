@@ -12,7 +12,7 @@ class VAE(nn.Module):
         self.encoder = nn.Sequential(
             nn.Linear(input_dim_source, hidden_dim),
             nn.Tanh(),
-            # nn.Dropout(0.3),
+            nn.Dropout(0.2),
             nn.Linear(hidden_dim, latent_dim),
             nn.Tanh(),
         )
@@ -25,7 +25,7 @@ class VAE(nn.Module):
         self.decoder = nn.Sequential(
             nn.Linear(latent_dim, hidden_dim),
             nn.Tanh(),
-            # nn.Dropout(0.3),
+            nn.Dropout(0.2),
             nn.Linear(hidden_dim, input_dim_target)
         )
 
