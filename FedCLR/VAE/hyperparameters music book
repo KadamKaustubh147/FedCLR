@@ -1,0 +1,172 @@
+(.venv) PS C:\dev_stuff\FedCLR_implementation\FedCLR\VAE> python .\HP_tuning.py
+[I 2026-05-13 04:23:10,831] A new study created in memory with name: no-name-21ca3f07-ed4a-44a9-9e52-21ed08aa3c0f
+  Skipped 0 cold-start users with no test interactions at @50
+  Skipped 0 cold-start users with no test interactions at @50
+  Skipped 0 cold-start users with no test interactions at @50
+  Skipped 0 cold-start users with no test interactions at @50
+  Skipped 0 cold-start users with no test interactions at @50
+  Skipped 0 cold-start users with no test interactions at @50
+  Skipped 0 cold-start users with no test interactions at @50
+  Skipped 0 cold-start users with no test interactions at @50
+  Skipped 0 cold-start users with no test interactions at @50
+  Skipped 0 cold-start users with no test interactions at @50
+[I 2026-05-13 04:25:48,726] Trial 0 finished with value: 0.01972679109591627 and parameters: {'lr': 0.01, 'dropout': 0.6000000000000001}. Best is trial 0 with value: 0.01972679109591627.
+  Skipped 0 cold-start users with no test interactions at @50
+  Skipped 0 cold-start users with no test interactions at @50
+  Skipped 0 cold-start users with no test interactions at @50
+  Skipped 0 cold-start users with no test interactions at @50
+  Skipped 0 cold-start users with no test interactions at @50
+  Skipped 0 cold-start users with no test interactions at @50
+  Skipped 0 cold-start users with no test interactions at @50
+  Skipped 0 cold-start users with no test interactions at @50
+  Skipped 0 cold-start users with no test interactions at @50
+  Skipped 0 cold-start users with no test interactions at @50
+[I 2026-05-13 04:27:47,167] Trial 1 finished with value: 0.010981195673563052 and parameters: {'lr': 0.001, 'dropout': 0.30000000000000004}. Best is trial 0 with value: 0.01972679109591627.
+  Skipped 0 cold-start users with no test interactions at @50
+  Skipped 0 cold-start users with no test interactions at @50
+  Skipped 0 cold-start users with no test interactions at @50
+  Skipped 0 cold-start users with no test interactions at @50
+  Skipped 0 cold-start users with no test interactions at @50
+  Skipped 0 cold-start users with no test interactions at @50
+  Skipped 0 cold-start users with no test interactions at @50
+  Skipped 0 cold-start users with no test interactions at @50
+  Skipped 0 cold-start users with no test interactions at @50
+  Skipped 0 cold-start users with no test interactions at @50
+[I 2026-05-13 04:30:44,270] Trial 2 finished with value: 0.047854441370080575 and parameters: {'lr': 0.5, 'dropout': 0.9}. Best is trial 2 with value: 0.047854441370080575.
+  Skipped 0 cold-start users with no test interactions at @50
+  Skipped 0 cold-start users with no test interactions at @50
+  Skipped 0 cold-start users with no test interactions at @50
+  Skipped 0 cold-start users with no test interactions at @50
+  Skipped 0 cold-start users with no test interactions at @50
+  Skipped 0 cold-start users with no test interactions at @50
+  Skipped 0 cold-start users with no test interactions at @50
+  Skipped 0 cold-start users with no test interactions at @50
+  Skipped 0 cold-start users with no test interactions at @50
+  Skipped 0 cold-start users with no test interactions at @50
+[I 2026-05-13 04:33:51,661] Trial 3 finished with value: 0.012425068025907815 and parameters: {'lr': 0.005, 'dropout': 0.30000000000000004}. Best is trial 2 with value: 0.047854441370080575.
+  Skipped 0 cold-start users with no test interactions at @50
+  Skipped 0 cold-start users with no test interactions at @50
+  Skipped 0 cold-start users with no test interactions at @50
+  Skipped 0 cold-start users with no test interactions at @50
+  Skipped 0 cold-start users with no test interactions at @50
+  Skipped 0 cold-start users with no test interactions at @50
+  Skipped 0 cold-start users with no test interactions at @50
+  Skipped 0 cold-start users with no test interactions at @50
+  Skipped 0 cold-start users with no test interactions at @50
+  Skipped 0 cold-start users with no test interactions at @50
+[I 2026-05-13 04:36:47,544] Trial 4 finished with value: 0.0986944827179152 and parameters: {'lr': 0.5, 'dropout': 0.5}. Best is trial 4 with value: 0.0986944827179152.
+  Skipped 0 cold-start users with no test interactions at @50
+  Skipped 0 cold-start users with no test interactions at @50
+  Skipped 0 cold-start users with no test interactions at @50
+  Skipped 0 cold-start users with no test interactions at @50
+  Skipped 0 cold-start users with no test interactions at @50
+  Skipped 0 cold-start users with no test interactions at @50
+  Skipped 0 cold-start users with no test interactions at @50
+  Skipped 0 cold-start users with no test interactions at @50
+  Skipped 0 cold-start users with no test interactions at @50
+  Skipped 0 cold-start users with no test interactions at @50
+[I 2026-05-13 04:39:13,387] Trial 5 finished with value: 0.10618300123430782 and parameters: {'lr': 0.1, 'dropout': 0.1}. Best is trial 5 with value: 0.10618300123430782.
+  Skipped 0 cold-start users with no test interactions at @50
+[I 2026-05-13 04:39:23,772] Trial 6 pruned. 
+  Skipped 0 cold-start users with no test interactions at @50
+[I 2026-05-13 04:39:34,385] Trial 7 pruned. 
+  Skipped 0 cold-start users with no test interactions at @50
+  Skipped 0 cold-start users with no test interactions at @50
+  Skipped 0 cold-start users with no test interactions at @50
+  Skipped 0 cold-start users with no test interactions at @50
+  Skipped 0 cold-start users with no test interactions at @50
+  Skipped 0 cold-start users with no test interactions at @50
+  Skipped 0 cold-start users with no test interactions at @50
+  Skipped 0 cold-start users with no test interactions at @50
+  Skipped 0 cold-start users with no test interactions at @50
+  Skipped 0 cold-start users with no test interactions at @50
+[I 2026-05-13 04:41:46,445] Trial 8 finished with value: 0.10746801361065614 and parameters: {'lr': 0.1, 'dropout': 0.9}. Best is trial 8 with value: 0.10746801361065614.
+  Skipped 0 cold-start users with no test interactions at @50
+[I 2026-05-13 04:41:57,764] Trial 9 pruned. 
+  Skipped 0 cold-start users with no test interactions at @50
+[I 2026-05-13 04:42:10,314] Trial 10 pruned. 
+  Skipped 0 cold-start users with no test interactions at @50
+  Skipped 0 cold-start users with no test interactions at @50
+  Skipped 0 cold-start users with no test interactions at @50
+  Skipped 0 cold-start users with no test interactions at @50
+  Skipped 0 cold-start users with no test interactions at @50
+  Skipped 0 cold-start users with no test interactions at @50
+  Skipped 0 cold-start users with no test interactions at @50
+  Skipped 0 cold-start users with no test interactions at @50
+  Skipped 0 cold-start users with no test interactions at @50
+  Skipped 0 cold-start users with no test interactions at @50
+[I 2026-05-13 04:43:50,596] Trial 11 finished with value: 0.08359213507817422 and parameters: {'lr': 0.1, 'dropout': 0.0}. Best is trial 8 with value: 0.10746801361065614.
+  Skipped 0 cold-start users with no test interactions at @50
+[I 2026-05-13 04:44:00,707] Trial 12 pruned. 
+  Skipped 0 cold-start users with no test interactions at @50
+[I 2026-05-13 04:44:11,117] Trial 13 pruned. 
+  Skipped 0 cold-start users with no test interactions at @50
+[I 2026-05-13 04:44:22,837] Trial 14 pruned. 
+  Skipped 0 cold-start users with no test interactions at @50
+  Skipped 0 cold-start users with no test interactions at @50
+  Skipped 0 cold-start users with no test interactions at @50
+  Skipped 0 cold-start users with no test interactions at @50
+  Skipped 0 cold-start users with no test interactions at @50
+  Skipped 0 cold-start users with no test interactions at @50
+  Skipped 0 cold-start users with no test interactions at @50
+  Skipped 0 cold-start users with no test interactions at @50
+  Skipped 0 cold-start users with no test interactions at @50
+  Skipped 0 cold-start users with no test interactions at @50
+[I 2026-05-13 04:46:18,298] Trial 15 finished with value: 0.08355489715161403 and parameters: {'lr': 0.1, 'dropout': 0.2}. Best is trial 8 with value: 0.10746801361065614.
+  Skipped 0 cold-start users with no test interactions at @50
+[I 2026-05-13 04:46:28,763] Trial 16 pruned. 
+  Skipped 0 cold-start users with no test interactions at @50
+[I 2026-05-13 04:46:40,086] Trial 17 pruned. 
+  Skipped 0 cold-start users with no test interactions at @50
+[I 2026-05-13 04:46:50,497] Trial 18 pruned. 
+  Skipped 0 cold-start users with no test interactions at @50
+[I 2026-05-13 04:47:01,332] Trial 19 pruned. 
+  Skipped 0 cold-start users with no test interactions at @50
+[I 2026-05-13 04:47:11,961] Trial 20 pruned. 
+  Skipped 0 cold-start users with no test interactions at @50
+  Skipped 0 cold-start users with no test interactions at @50
+  Skipped 0 cold-start users with no test interactions at @50
+  Skipped 0 cold-start users with no test interactions at @50
+  Skipped 0 cold-start users with no test interactions at @50
+  Skipped 0 cold-start users with no test interactions at @50
+  Skipped 0 cold-start users with no test interactions at @50
+  Skipped 0 cold-start users with no test interactions at @50
+  Skipped 0 cold-start users with no test interactions at @50
+  Skipped 0 cold-start users with no test interactions at @50
+[I 2026-05-13 04:49:02,862] Trial 21 finished with value: 0.10358823426883472 and parameters: {'lr': 0.5, 'dropout': 0.5}. Best is trial 8 with value: 0.10746801361065614.
+  Skipped 0 cold-start users with no test interactions at @50
+  Skipped 0 cold-start users with no test interactions at @50
+  Skipped 0 cold-start users with no test interactions at @50
+  Skipped 0 cold-start users with no test interactions at @50
+  Skipped 0 cold-start users with no test interactions at @50
+[I 2026-05-13 04:50:02,726] Trial 22 pruned. 
+  Skipped 0 cold-start users with no test interactions at @50
+  Skipped 0 cold-start users with no test interactions at @50
+  Skipped 0 cold-start users with no test interactions at @50
+  Skipped 0 cold-start users with no test interactions at @50
+  Skipped 0 cold-start users with no test interactions at @50
+  Skipped 0 cold-start users with no test interactions at @50
+  Skipped 0 cold-start users with no test interactions at @50
+  Skipped 0 cold-start users with no test interactions at @50
+  Skipped 0 cold-start users with no test interactions at @50
+  Skipped 0 cold-start users with no test interactions at @50
+[I 2026-05-13 04:51:46,329] Trial 23 finished with value: 0.09315857461060906 and parameters: {'lr': 0.5, 'dropout': 0.4}. Best is trial 8 with value: 0.10746801361065614.
+  Skipped 0 cold-start users with no test interactions at @50
+[I 2026-05-13 04:51:56,703] Trial 24 pruned. 
+  Skipped 0 cold-start users with no test interactions at @50
+[I 2026-05-13 04:52:07,107] Trial 25 pruned. 
+  Skipped 0 cold-start users with no test interactions at @50
+  Skipped 0 cold-start users with no test interactions at @50
+  Skipped 0 cold-start users with no test interactions at @50
+  Skipped 0 cold-start users with no test interactions at @50
+  Skipped 0 cold-start users with no test interactions at @50
+[I 2026-05-13 04:53:06,060] Trial 26 pruned. 
+  Skipped 0 cold-start users with no test interactions at @50
+[I 2026-05-13 04:53:18,038] Trial 27 pruned. 
+  Skipped 0 cold-start users with no test interactions at @50
+[I 2026-05-13 04:53:29,819] Trial 28 pruned. 
+  Skipped 0 cold-start users with no test interactions at @50
+[I 2026-05-13 04:53:41,944] Trial 29 pruned. 
+Best Trial:
+  Value (Recall@50): 0.10746801361065614
+  Params: {'lr': 0.1, 'dropout': 0.9}

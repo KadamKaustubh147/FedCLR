@@ -17,11 +17,29 @@ def init_weights(m):   # ✅ added
 
 
 # =========================
-# DATASET
+# DATASET --> douban
 # =========================
+# class CrossDomainDataset(Dataset):
+#     def __init__(self, source_path, target_path):
+#         self.Xs = np.load(source_path)
+#         self.Xt = np.load(target_path)
+
+#         assert self.Xs.shape[0] == self.Xt.shape[0]
+
+#     def __len__(self):
+#         return self.Xs.shape[0]
+
+#     def __getitem__(self, user_id):
+#         x_s = torch.tensor(self.Xs[user_id], dtype=torch.float32)
+#         x_t = torch.tensor(self.Xt[user_id], dtype=torch.float32)
+#         # user_id is the index -->
+#         return x_s, x_t, user_id   # ✅ return user_id
+
+from scipy.sparse import load_npz
+
 class CrossDomainDataset(Dataset):
     def __init__(self, source_path, target_path):
-        self.Xs = np.load(source_path)
+        self.Xs = np.load(source_path)  # loads as csr_matrix
         self.Xt = np.load(target_path)
 
         assert self.Xs.shape[0] == self.Xt.shape[0]
@@ -30,11 +48,14 @@ class CrossDomainDataset(Dataset):
         return self.Xs.shape[0]
 
     def __getitem__(self, user_id):
+        # .toarray() converts sparse row → dense numpy array
+        # .squeeze() removes the extra dimension (1, num_items) → (num_items,)
+        # x_s = torch.tensor(self.Xs[user_id].toarray().squeeze(), dtype=torch.float32)
+        # x_t = torch.tensor(self.Xt[user_id].toarray().squeeze(), dtype=torch.float32)
+
         x_s = torch.tensor(self.Xs[user_id], dtype=torch.float32)
         x_t = torch.tensor(self.Xt[user_id], dtype=torch.float32)
-        # user_id is the index -->
-        return x_s, x_t, user_id   # ✅ return user_id
-
+        return x_s, x_t, user_id
 
 # =========================
 # LOSS FUNCTIONS
@@ -143,7 +164,7 @@ def main():
 
     model.apply(init_weights)   # ✅ APPLY XAVIER HERE
 
-    optimizer = torch.optim.Adam(model.parameters(), lr=1e-3)
+    optimizer = torch.optim.Adam(model.parameters(), lr=0.05)
 
     num_users = len(dataset)
     prev_z_memory = [None] * num_users

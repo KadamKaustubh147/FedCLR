@@ -6,15 +6,16 @@ import copy
 from torch.utils.data import DataLoader, Subset
 import torch.nn.functional as F
 from test1 import evaluate
+# from scipy.sparse import load_npz
 
 
 from model import VAE
 # imports dataset and train function --> local training function
 from train import CrossDomainDataset, train, init_weights
 
-random.seed(42)
-np.random.seed(42)
-torch.manual_seed(42)
+random.seed(46)
+np.random.seed(46)
+torch.manual_seed(46)
 
 # =========================
 # SPLIT DATA BY USER
@@ -93,7 +94,7 @@ def local_training(global_model, dataset, indices, device, local_epochs, prev_z_
     # clone global model
     local_model = copy.deepcopy(global_model)
 
-    optimizer = torch.optim.Adam(local_model.parameters(), lr=1e-3)
+    optimizer = torch.optim.Adam(local_model.parameters(), lr=0.01)
 
     for epoch in range(local_epochs):
         loss = train(local_model, dataloader, optimizer, device, prev_z_memory, z_glob_memory, epoch)
@@ -185,9 +186,9 @@ def federated_training():
     num_users = len(dataset)
     prev_z_memory = [None] * num_users
 
-    global_rounds = 25
-    local_epochs = 50
-    C = 0.05
+    global_rounds = 50
+    local_epochs = 5
+    C = 0.1
 
     print("🚀 Starting Federated Training...\n")
     
@@ -207,6 +208,7 @@ def federated_training():
 
         # sample ONLY from train users
         num_selected = max(1, int(C * len(train_users)))
+        # num_selected = 50
         selected_users = random.sample(train_users, num_selected)
 
         client_states = []

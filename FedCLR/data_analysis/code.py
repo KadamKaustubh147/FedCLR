@@ -10,10 +10,10 @@ import matplotlib.pyplot as plt
 
 
 
-BASE_PATH = r"C:\Users\kaust\OneDrive\Documents\Honors\datasets"
+BASE_PATH = r"C:\dev_stuff\FedCLR_implementation\datasets"
 
 TASK = "dual-user-inter"      
-DOMAIN = "sport_cloth"                 # change: m1, cloth_sport, etc
+DOMAIN = "video_game"                 # change: m1, cloth_sport, etc
 
 # %%
 # ===============================

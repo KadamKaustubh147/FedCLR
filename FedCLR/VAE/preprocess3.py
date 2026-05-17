@@ -6,7 +6,7 @@ random.seed(42)
 np.random.seed(42)
 
 # Load .dat files (tab separated, no header, cols: user_id, item_id, rating)
-movies = pd.read_csv("../../Data_GA_DTCDR/douban_movie/ratings.dat", sep="\t", header=None, names=["user_id","item_id","rating"])
+movies = pd.read_csv("../../Data_GA_DTCDR/douban_music/ratings.dat", sep="\t", header=None, names=["user_id","item_id","rating"])
 music  = pd.read_csv("../../Data_GA_DTCDR/douban_book/ratings.dat",  sep="\t", header=None, names=["user_id","item_id","rating"])
 
 # Overlapping users
