@@ -13,9 +13,9 @@ from model import VAE
 # imports dataset and train function --> local training function
 from train import CrossDomainDataset, train, init_weights
 
-random.seed(46)
-np.random.seed(46)
-torch.manual_seed(46)
+random.seed(42)
+np.random.seed(42)
+torch.manual_seed(42)
 
 # =========================
 # SPLIT DATA BY USER
@@ -94,7 +94,7 @@ def local_training(global_model, dataset, indices, device, local_epochs, prev_z_
     # clone global model
     local_model = copy.deepcopy(global_model)
 
-    optimizer = torch.optim.Adam(local_model.parameters(), lr=0.01)
+    optimizer = torch.optim.Adam(local_model.parameters(), lr=0.05)
 
     for epoch in range(local_epochs):
         loss = train(local_model, dataloader, optimizer, device, prev_z_memory, z_glob_memory, epoch)

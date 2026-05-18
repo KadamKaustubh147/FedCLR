@@ -7,8 +7,9 @@ import os
 import numpy as np
 import pandas as pd
 import random
-from scipy.sparse import lil_matrix, csr_matrix, save_npz
+from scipy.sparse import lil_matrix, csr_matrix
 
+# Keep things fully reproducible
 random.seed(42)
 np.random.seed(42)
 
@@ -33,7 +34,6 @@ src_train = load_split(DOMAIN, "train")
 src_test  = load_split(DOMAIN, "test")
 
 # reversed pair is the target domain
-# "game_video" → "video_game"
 parts      = DOMAIN.split("_")
 rev_domain = f"{parts[1]}_{parts[0]}"
 print(f"\nLoading REVERSE (target) DOMAIN: {rev_domain}")
@@ -41,7 +41,7 @@ tgt_train = load_split(rev_domain, "train")
 tgt_test  = load_split(rev_domain, "test")
 
 # ===============================
-# Overlapping users
+# Overlapping users & 10% Sampling
 # ===============================
 
 src_all = pd.concat([src_train, src_test], ignore_index=True)
@@ -49,21 +49,27 @@ tgt_all = pd.concat([tgt_train, tgt_test], ignore_index=True)
 
 src_users    = set(src_all["user_id"].unique())
 tgt_users    = set(tgt_all["user_id"].unique())
-common_users = src_users & tgt_users
+common_users = list(src_users & tgt_users)  # Converted to list for sampling
 
-print(f"\nSource users : {len(src_users)}")
-print(f"Target users : {len(tgt_users)}")
-print(f"Overlapping  : {len(common_users)}")
+print(f"\nTotal Source users : {len(src_users)}")
+print(f"Total Target users : {len(tgt_users)}")
+print(f"Total Overlapping  : {len(common_users)}")
 
-# Filter to common users
-src_all = src_all[src_all["user_id"].isin(common_users)].copy()
-tgt_all = tgt_all[tgt_all["user_id"].isin(common_users)].copy()
+# --- Downsample to 10% of users ---
+sample_size  = int(len(common_users) * 0.10)
+sampled_users = set(random.sample(sorted(common_users), sample_size))
+print(f"Sampled 10% users  : {len(sampled_users)}")
+
+# Filter datasets down to just the sampled users
+src_all = src_all[src_all["user_id"].isin(sampled_users)].copy()
+tgt_all = tgt_all[tgt_all["user_id"].isin(sampled_users)].copy()
 
 # ===============================
 # Reindex users & items
 # ===============================
 
-user_map = {u: i for i, u in enumerate(sorted(common_users))}
+# Reindex using only our 10% subset
+user_map = {u: i for i, u in enumerate(sorted(sampled_users))}
 src_all["user_id"] = src_all["user_id"].map(user_map)
 tgt_all["user_id"] = tgt_all["user_id"].map(user_map)
 
@@ -76,12 +82,12 @@ num_users     = len(user_map)
 num_src_items = len(src_item_map)
 num_tgt_items = len(tgt_item_map)
 
-print(f"\nUsers       : {num_users}")
-print(f"Source items: {num_src_items}")
-print(f"Target items: {num_tgt_items}")
+print(f"\nDownsampled Users   : {num_users}")
+print(f"Downsampled Src items: {num_src_items}")
+print(f"Downsampled Tgt items: {num_tgt_items}")
 
 # ===============================
-# Cold-start split (80 / 20 on users)
+# Cold-start split (80 / 20 on sampled users)
 # ===============================
 
 all_user_ids    = list(range(num_users))
@@ -90,19 +96,16 @@ split_idx       = int(num_users * 0.8)
 train_users     = set(all_user_ids[:split_idx])
 coldstart_users = set(all_user_ids[split_idx:])
 
-print(f"\nTrain users     : {len(train_users)}")
-print(f"Cold-start users: {len(coldstart_users)}")
+print(f"\nTrain users (80%)     : {len(train_users)}")
+print(f"Cold-start users (20%): {len(coldstart_users)}")
 
 # ===============================
 # Build SPARSE interaction matrices
 # ===============================
 
-# lil_matrix is efficient for row-by-row filling
-# converted to csr before saving (csr is efficient for row slicing during training)
-
 print("\nBuilding sparse matrices...")
 
-# Source — all users
+# Source — all sampled users
 X_source = lil_matrix((num_users, num_src_items), dtype=np.float32)
 for _, row in src_all.iterrows():
     X_source[int(row["user_id"]), int(row["item_id"])] = 1.0
@@ -132,7 +135,6 @@ def sparsity(m):
     return 1 - m.nnz / (m.shape[0] * m.shape[1])
 
 def mem_mb(m):
-    # csr stores data, indices, indptr arrays
     return (m.data.nbytes + m.indices.nbytes + m.indptr.nbytes) / 1e6
 
 print(f"\nX_source      shape: {X_source.shape}  sparsity: {sparsity(X_source):.4f}  mem: {mem_mb(X_source):.2f} MB")
@@ -143,11 +145,11 @@ print(f"X_target_test shape: {X_target_test.shape}  sparsity: {sparsity(X_target
 # Save
 # ===============================
 
-save_npz(os.path.join(OUT_DIR, "X_source.npz"),         X_source)
-save_npz(os.path.join(OUT_DIR, "X_target.npz"),         X_target)
-save_npz(os.path.join(OUT_DIR, "X_target_test.npz"),    X_target_test)
+np.save(os.path.join(OUT_DIR, "X_source.npy"), X_source.toarray())
+np.save(os.path.join(OUT_DIR, "X_target.npy"), X_target.toarray())
+np.save(os.path.join(OUT_DIR, "X_target_test.npy"), X_target_test.toarray())
 np.save(os.path.join(OUT_DIR, "train_users.npy"),       np.array(list(train_users)))
 np.save(os.path.join(OUT_DIR, "cold_start_users.npy"),  np.array(list(coldstart_users)))
 
-print(f"\nSaved to: {OUT_DIR}")
+print(f"\nSaved downsampled datasets to: {OUT_DIR}")
 print("Done!")

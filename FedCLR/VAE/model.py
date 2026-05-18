@@ -5,7 +5,7 @@ import torch.nn.functional as F
 
 class VAE(nn.Module):
     def __init__(self, input_dim_source, input_dim_target,
-                 hidden_dim=300, latent_dim=100, dropout=0.7):
+                 hidden_dim=300, latent_dim=100, dropout=0.4):
         super().__init__()
 
         # Encoder (source domain)

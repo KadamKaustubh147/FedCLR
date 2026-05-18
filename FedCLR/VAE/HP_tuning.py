@@ -18,7 +18,7 @@ logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.FileHandler("movie_music_logs.txt"),
+        logging.FileHandler("game_video_logs.txt"),
         logging.StreamHandler() # This keeps logs visible in the terminal too
     ]
 )
