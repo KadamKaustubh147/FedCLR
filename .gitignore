@@ -1,7 +1,7 @@
 *.npy
 
 *.txt
-*.pth
+
 
 .venv/
 
